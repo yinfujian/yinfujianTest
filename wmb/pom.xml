@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.demo</groupId>
+    <artifactId>wmb</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <spring-boot.version>2.4.9</spring-boot.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+
+        <!--SCF 版本管理版本号-->
+        <scf.dependencies.version>1.2.0</scf.dependencies.version>
+    </properties>
+
+    <dependencies>
+        <!-- springboot version-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bj58.spat</groupId>
+            <artifactId>scf-spring-boot-starter</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+        </dependency>
+        <!-- hmc -->
+        <dependency>
+            <groupId>com.bj58.fang</groupId>
+            <artifactId>hmc.contract</artifactId>
+        </dependency>
+        <!-- jedis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bj58.spat</groupId>
+            <artifactId>wmb-spring-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.bj58.spat</groupId>
+                <artifactId>wmb-spring-boot-starter</artifactId>
+                <version>1.0.16</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- ############# SCF 相关版本管理 ############# -->
+            <dependency>
+                <groupId>com.bj58.spat</groupId>
+                <artifactId>scf-spring-boot-dependencies</artifactId>
+                <version>${scf.dependencies.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.14.1-safe58</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <!-- 权属认证SCF -->
+            <dependency>
+                <groupId>com.bj58.fang</groupId>
+                <artifactId>ownershipAuth.contract</artifactId>
+                <version>1.0.27-SNAPSHOT</version>
+            </dependency>
+            <!-- hmc -->
+            <dependency>
+                <groupId>com.bj58.fang</groupId>
+                <artifactId>hmc.contract</artifactId>
+                <version>1.0.15</version>
+            </dependency>
+            <!-- fastjson -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>2.0.26</version>
+            </dependency>
+            <!-- passport认证 -->
+            <dependency>
+                <groupId>com.bj58.uc.cloud</groupId>
+                <artifactId>com.bj58.uc.cloud.authorization.webclient</artifactId>
+                <version>2.0.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bj58.uc.cloud</groupId>
+                <artifactId>com.bj58.uc.cloud.common</artifactId>
+                <version>2.0.23</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bj58.uc.cloud</groupId>
+                <artifactId>com.bj58.uc.cloud.authorization.contract</artifactId>
+                <version>2.0.7</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk16</artifactId>
+                <version>1.46</version>
+            </dependency>
+            <!-- jedis -->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>3.5.1</version>
+            </dependency>
+            <!-- 认证接口防参数篡改 -->
+            <dependency>
+                <groupId>com.bj58.fangchan.zufang.common</groupId>
+                <artifactId>util</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bj58</groupId>
+                <artifactId>hbg.phpserver.rentersecurity.contract</artifactId>
+                <version>1.0.7</version>
+            </dependency>
+            <!-- 实名认证姓名 -->
+            <dependency>
+                <groupId>com.bj58.xxzl.auth</groupId>
+                <artifactId>authwarehouse_contract</artifactId>
+                <version>1.0.7</version>
+            </dependency>
+            <!-- 告警 -->
+            <dependency>
+                <groupId>com.bj58.wmonitor</groupId>
+                <artifactId>wmonitor-javaclient</artifactId>
+                <version>1.0.7</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>/**/*.yml</exclude>
+                        <exclude>/**/*.xml</exclude>
+                        <exclude>/**/*.properties</exclude>
+                        <exclude>/**/config/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

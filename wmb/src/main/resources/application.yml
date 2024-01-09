@@ -1,0 +1,16 @@
+##主配置文件
+server:
+  port: 8001
+
+wmb:
+  enabled: true # 启用 true/false 配置文件生效
+  registry-server-ip: esb.registryserver.offline.58dns.org # esb注册地址
+  registry-server-port: 21010 # esb注册服务端口
+  key: 6FF2D454EDE9AB87C4497841A6B3FE5F # key值 优先级低于wmb.config
+  notify-worker: 1 # esb 消费线程数，不配置的话默认是1
+  pull-worker: 2 # esb 拉取队列线程数，不配置的话默认是cpu核数-1
+  subscribeSubjects:
+    113272:
+      clientName: #订阅主题所属的客户端，不配置默认是default客户端
+      clientId: 1
+      subMode: PUSH #订阅模式，PUSH/PULL_SELF_ACK/PULL/SYNC_PULL/BROADCASTING(不区分大小写,不配置默认是PUSH)
