@@ -47,6 +47,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 		try {
 			// Supports remote as well as local URLs
 			is = getInputStreamForBeanFactory();
+			// 创建bean工厂
 			this.xmlBeanFactory = new XmlBeanFactory(getParent());
 			this.xmlBeanFactory.setEntityResolver(new ResourceBaseEntityResolver(this));
 			this.xmlBeanFactory.loadBeanDefinitions(is);
@@ -78,6 +79,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractApplicationC
 	/**
 	 * Open and return the input stream for the bean factory for this namespace. 
 	 * If namespace is null, return the input stream for the default bean factory.
+	 * 从命名空间中为这个bean工厂打开并且获得一个输入流。如果这个命名空间是空的，返回一个默认的
 	 * @exception IOException if the required XML document isn't found
 	 */
 	protected abstract InputStream getInputStreamForBeanFactory() throws IOException;

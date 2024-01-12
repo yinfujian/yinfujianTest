@@ -71,6 +71,7 @@ public interface ApplicationContext extends MessageSource, ListableBeanFactory, 
 	 * Load or refresh the persistent representation of the configuration,
 	 * which might for example be an XML file, properties file or
 	 * relational database schema.
+	 * 加载或刷新持久化的配置信息。文件可以是xml文件，properties文件或者关系型数据库的schema
 	 * @throws ApplicationContextException if the config cannot be loaded
 	 * @throws BeansException if the bean factory could not be initialized
 	 */

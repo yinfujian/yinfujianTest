@@ -197,7 +197,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Load or reload configuration.
+	 * Load or reload configuration. 加载或者重新加载配置信息
 	 * @throws ApplicationContextException if the configuration was invalid or couldn't
 	 * be found, or if configuration has already been loaded and reloading is forbidden
 	 * @throws BeansException if the bean factory could not be initialized
@@ -208,6 +208,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 		this.startupTime = System.currentTimeMillis();
 
+		// 刷新bean工厂，实际加载配置文件
 		refreshBeanFactory();
 
 		if (getBeanDefinitionCount() == 0)
@@ -215,25 +216,27 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		else
 			logger.info(getBeanDefinitionCount() + " beans defined in ApplicationContext [" + getDisplayName() + "]");
 
-		// invoke configurers that can override values in the bean definitions
+		// 调用配置信息来覆盖/修改bean的definitions定义信息
 		invokeContextConfigurers();
 
-		// load options bean for this context
+		// load options bean for this context 加载bean是否可重新加载
 		loadOptions();
 
 		// initialize message source for this context
+		// 为容器初始化事件源
 		initMessageSource();
 
 		// initialize other special beans in specific context subclasses
+		// 初始化其他特殊的beans,在特殊的上下文子类中
 		onRefresh();
 
-		// check for listener beans and register them
+		// 校验监听器对象并注册他们
 		refreshListeners();
 
-		// instantiate singletons this late to allow them to access the message source
+		// 这么晚才实例化singleton，以允许它们访问消息源
 		preInstantiateSingletons();
 
-		// last step: publish respective event
+		// last step: publish respective event 发布消息
 		publishEvent(new ContextRefreshedEvent(this));
 	}
 
@@ -246,8 +249,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Instantiate and invoke all registered BeanFactoryPostProcessor beans.
-	 * Must be called before singleton instantiation.
+	 * 实例化并调用所有注册的BeanFactoryPostProcessor bean。
+	 * 必须在单例实例化之前调用。
 	 */
 	private void invokeContextConfigurers() {
 		String[] beanNames = getBeanDefinitionNames(BeanFactoryPostProcessor.class);
@@ -259,13 +262,14 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	}
 
 	/**
-	 * Load the options bean.
-	 * The BeanFactory must be loaded before this method is called.
+	 * 加载options
+	 * beanFactory 必须在这个方法被调用前加载
 	 */
 	private void loadOptions() {
 		try {
 			this.contextOptions = (ContextOptions) getBean(OPTIONS_BEAN_NAME);
 		} catch (NoSuchBeanDefinitionException ex) {
+			// 异常处理后交付默认值
 			logger.info("No options bean (\"" + OPTIONS_BEAN_NAME + "\") found: using default");
 			this.contextOptions = new ContextOptions();
 		}
@@ -286,6 +290,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			// 异常后赋默认值
 			logger.info("No MessageSource found for [" + getDisplayName() + "]: using empty StaticMessageSource");
 			// use empty message source to be able to accept getMessage calls
 			this.messageSource = new StaticMessageSource();
@@ -329,6 +334,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	/**
 	 * Add beans that implement ApplicationListener as listeners.
 	 * Doesn't affect other listeners, which can be added without being beans.
+	 * 添加实现ApplicationListener作为侦听器的bean。
+	 * 不会影响其他侦听器，这些侦听器可以在不使用bean的情况下添加
 	 */
 	private void refreshListeners() {
 		logger.info("Refreshing listeners");
@@ -343,6 +350,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Destroy the singletons in the bean factory of this application context.
+	 * 销毁在上下文中单例对象
 	 */
 	public void close() {
 		logger.info("Closing application context [" + getDisplayName() + "]");
@@ -383,17 +391,19 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	/**
 	 * This implementation supports fully qualified URLs and appropriate
 	 * (file) paths, via getResourceByPath.
+	 * 支持通过完整的url中获取，或者从恰当的路径
 	 * Throws a FileNotFoundException if getResourceByPath returns null.
 	 * @see #getResourceByPath
 	 */
 	public final InputStream getResourceAsStream(String location) throws IOException {
 		try {
-			// try URL
+			// try URL，
 			URL url = new URL(location);
 			logger.debug("Opening as URL: " + location);
 			return url.openStream();
 		} catch (MalformedURLException ex) {
 			// no URL -> try (file) path
+			// 没有url。尝试从文件输入流
 			InputStream in = getResourceByPath(location);
 			if (in == null) {
 				throw new FileNotFoundException("Location '" + location + "' isn't a URL and cannot be interpreted as (file) path");
@@ -538,6 +548,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	/**
 	 * Subclasses must implement this method to perform the actual configuration load.
 	 * The method is invoked by refresh before any other initialization work.
+	 * 子类必须实现该方法去实际加载配置信息
+	 * 这个方法需要在refresh方法的任务初始化工作之前完成
 	 * @see #refresh
 	 */
 	protected abstract void refreshBeanFactory() throws ApplicationContextException, BeansException;

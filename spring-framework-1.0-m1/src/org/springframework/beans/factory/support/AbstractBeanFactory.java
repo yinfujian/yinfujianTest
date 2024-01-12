@@ -568,6 +568,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	public final void destroySingletons() {
 		logger.info("Destroying singletons in factory {" + this + "}");
 
+		// 遍历单例对象
 		for (Iterator it = this.singletonCache.keySet().iterator(); it.hasNext();) {
 			String name = (String) it.next();
 			Object bean = this.singletonCache.get(name);

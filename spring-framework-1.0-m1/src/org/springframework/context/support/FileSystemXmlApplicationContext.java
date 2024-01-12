@@ -43,7 +43,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 		this.configLocation = locations[locations.length - 1];
 		logger.debug("Trying to open XML application context file '" + this.configLocation + "'");
 
-		// Recurse
+		// Recurse // 父子容器相关，先放下
 		if (locations.length > 1) {
 			// There were parent(s)
 			String[] parentLocations = new String[locations.length - 1];

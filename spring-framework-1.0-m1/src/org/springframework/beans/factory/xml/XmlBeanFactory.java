@@ -69,6 +69,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	 * Value of a T/F attribute that represents true.
 	 * Anything else represents false. Case seNsItive.
 	 */
+	// 只能放true和false
 	private static final String TRUE_ATTRIBUTE_VALUE = "true";
 
 	private static final String BEAN_ELEMENT = "bean";
@@ -213,7 +214,7 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Load definitions from the given input stream and close it.
+	 * 从给出的流中加载bean的定义信息 然后关闭流
 	 * @param is InputStream containing XML
 	 */
 	public void loadBeanDefinitions(InputStream is) throws BeansException {
@@ -255,13 +256,14 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	}
 
 	/**
-	 * Load bean definitions from the given DOM document.
+	 * 从dom document 中 所有的bean定义信息
 	 * All calls go through this.
 	 * @param doc the DOM document
 	 */
 	public void loadBeanDefinitions(Document doc) throws BeansException {
 		Element root = doc.getDocumentElement();
 		logger.debug("Loading bean definitions");
+		// 根结点的所有定义信息
 		NodeList nl = root.getElementsByTagName(BEAN_ELEMENT);
 		logger.debug("Found " + nl.getLength() + " <" + BEAN_ELEMENT + "> elements defining beans");
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -281,10 +283,14 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 		// Create BeanDefinition now: we'll build up PropertyValues later
 		AbstractBeanDefinition beanDefinition;
 
+		// 获取xml中bean的定义信息PropertyValues 对象
 		PropertyValues pvs = getPropertyValueSubElements(el);
+		// 生成beanDefinition
 		beanDefinition = parseBeanDefinition(el, id, pvs);
+		// 放入beanDefinitionMap
 		registerBeanDefinition(id, beanDefinition);
 
+		// 加载别名
 		String name = el.getAttribute(NAME_ATTRIBUTE);
 		if (name != null && !"".equals(name)) {
 			// Automatically create aliases from the name CSV.
@@ -304,22 +310,29 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 		boolean singleton = true;
 		if (el.hasAttribute(SINGLETON_ATTRIBUTE)) {
 			// Default is singleton
+			// 默认是一个单例的
 			// Can override by making non-singleton if desired
+			// 如果需要，可以通过使非单例进行覆盖，这行是覆盖不实用单例的代码
 			singleton = TRUE_ATTRIBUTE_VALUE.equals(el.getAttribute(SINGLETON_ATTRIBUTE));
 		}
 		try {
 			if (el.hasAttribute(CLASS_ATTRIBUTE))
+				// 读取class属性
 				className = el.getAttribute(CLASS_ATTRIBUTE);
 			String parent = null;
 			if (el.hasAttribute(PARENT_ATTRIBUTE))
+				// 继承信息
 				parent = el.getAttribute(PARENT_ATTRIBUTE);
 			if (className == null && parent == null)
 				throw new FatalBeanException("No className or parent in bean definition [" + beanName + "]", null);
 			if (className != null) {
+				// 获取当前加载器
 				ClassLoader cl = Thread.currentThread().getContextClassLoader();
+				// 设置获取初始化方法 反射调用的
 				String initMethodName = el.getAttribute(INIT_METHOD_ATTRIBUTE);
 				if (initMethodName.equals(""))
 					initMethodName = null;
+				// 设置销毁对象的方法 反射调用的
 				String destroyMethodName = el.getAttribute(DESTROY_METHOD_ATTRIBUTE);
 				if (destroyMethodName.equals(""))
 					destroyMethodName = null;
@@ -337,9 +350,11 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 
 	/**
 	 * Parse property value subelements of this bean element.
+	 * 获取bean节点的property
 	 */
 	private PropertyValues getPropertyValueSubElements(Element beanEle) {
 		NodeList nl = beanEle.getElementsByTagName(PROPERTY_ELEMENT);
+		// bean 对象所有的成员变量
 		MutablePropertyValues pvs = new MutablePropertyValues();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Element propEle = (Element) nl.item(i);
@@ -357,11 +372,13 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 			throw new BeanDefinitionStoreException("Property without a name", null);
 
 		Object val = getPropertyValue(e);
+		// xml中所有节点信息
 		pvs.addPropertyValue(new PropertyValue(propertyName, val));
 	}
 
 	/**
 	 * Get the value of a property element. May be a list.
+	 * 获取所有property 下的元素
 	 */
 	private Object getPropertyValue(Element e) {
 		String distinguishedValue = e.getAttribute(DISTINGUISHED_VALUE_ATTRIBUTE);
@@ -387,21 +404,26 @@ public class XmlBeanFactory extends ListableBeanFactoryImpl {
 	private Object parsePropertySubelement(Element ele) {
 		if (ele.getTagName().equals(REF_ELEMENT)) {
 			// a reference to another bean in this factory?
+			// 另一个bean的引用
 			String beanName = ele.getAttribute(BEAN_REF_ATTRIBUTE);
 			if ("".equals(beanName)) {
 				// a reference to an external bean (in a parent factory)?
+				// 从父工厂拿一下
 				beanName = ele.getAttribute(EXTERNAL_REF_ATTRIBUTE);
 				if ("".equals(beanName)) {
 					throw new FatalBeanException("Either 'bean' or 'external' is required for a reference");
 				}
 			}
+			// 运行中再去生成
 			return new RuntimeBeanReference(beanName);
 		}
 		else if (ele.getTagName().equals(VALUE_ELEMENT)) {
 			// It's a literal value
+			// 拿内容 注入String类型
 			return getTextValue(ele);
 		}
 		else if (ele.getTagName().equals(LIST_ELEMENT)) {
+			// 拿集合
 			return getList(ele);
 		}
 		else if (ele.getTagName().equals(MAP_ELEMENT)) {
