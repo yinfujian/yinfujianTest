@@ -2,6 +2,7 @@ package org.springframework.beans;
 
 /**
  * Object containing 0 or more PropertyValues comprising one update.
+ * 对象，该对象包含0个或多个包含一个更新的PropertyValue。
  * @author Rod Johnson
  * @since 13 May 2001
  * @version $Id: PropertyValues.java,v 1.2 2003/08/26 10:17:27 jhoeller Exp $

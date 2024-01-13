@@ -32,6 +32,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	/**
 	 * Create a new FileSystemXmlApplicationContext with the given locations.
 	 * The locations specify the parents in descending order, i.e. the last
+	 * 位置按降序指定父对象，即最后一个
 	 * location is the one of this context.
 	 * @param locations String array consisting of locations
 	 */

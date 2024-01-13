@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
  * Default implementation of the PropertyValues interface.
  * Allows simple manipulation of properties, and provides constructors
  * to support deep copy and construction from a Map.
+ * PropertyValues接口的默认实现。允许简单地操作属性，并提供构造函数来支持从Map进行深度复制和构建。
  * @author Rod Johnson
  * @since 13 May 2001
  * @version $Id: MutablePropertyValues.java,v 1.2 2003/08/26 10:14:34 jhoeller Exp $

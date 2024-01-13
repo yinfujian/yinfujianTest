@@ -253,9 +253,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * 必须在单例实例化之前调用。
 	 */
 	private void invokeContextConfigurers() {
+		// 获取所有实现了BeanFactoryPostProcessor这个接口的定义信息
 		String[] beanNames = getBeanDefinitionNames(BeanFactoryPostProcessor.class);
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
+			// 创建了bean,初始化了bean
 			BeanFactoryPostProcessor configurer = (BeanFactoryPostProcessor) getBean(beanName);
 			configurer.postProcessBeanFactory(getBeanFactory());
 		}

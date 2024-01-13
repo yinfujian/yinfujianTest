@@ -16,8 +16,10 @@ import org.springframework.context.ApplicationContextException;
  * Allows for configuration of individual bean properties from a property resource,
  * i.e. a properties file. Useful for custom config files targetted at system
  * administrators that override bean properties configured in the application context.
+ * 允许从属性资源（即属性文件）配置单个bean属性。对于针对覆盖应用程序上下文中配置的bean属性的系统管理员的自定义配置文件非常有用。
  *
  * <p>Expects configuration lines of the following form:<br>
+ * // 读的这个形式的
  * beanName.property=value
  *
  * @author Juergen Hoeller
@@ -32,6 +34,7 @@ public class PropertyResourceConfigurer extends ApplicationObjectSupport impleme
 	/**
 	 * Set the location of the properties file. Allows for both a URL
 	 * and a (file) path, according to the respective ApplicationContext.
+	 * 设置属性文件的位置。根据各自的ApplicationContext，同时允许URL和（文件）路径。
 	 * @see org.springframework.context.ApplicationContext#getResourceAsStream
 	 */
 	public void setLocation(String location) {
@@ -43,6 +46,7 @@ public class PropertyResourceConfigurer extends ApplicationObjectSupport impleme
 			logger.info("Loading properties '" + this.location + "'");
 			Properties prop = new Properties();
 			try {
+				// 获取输出流
 				prop.load(getApplicationContext().getResourceAsStream(this.location));
 				for (Iterator it = prop.keySet().iterator(); it.hasNext();) {
 					String key = (String) it.next();

@@ -149,6 +149,8 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 	/**
 	 * Note that this method is slow. Don't invoke it too often:
 	 * it's best used only in application initialization.
+	 * 这个方法很慢，不能频繁调用
+	 * 最好就是在应用初始化时候调用
 	 */
 	public final String[] getBeanDefinitionNames(Class type) {
 		Set keys = this.beanDefinitionMap.keySet();
@@ -376,6 +378,7 @@ public class ListableBeanFactoryImpl extends AbstractBeanFactory implements List
 		if (!(bd.getPropertyValues() instanceof MutablePropertyValues)) {
 			throw new FatalBeanException("Cannot modify immutable property values for bean [" + beanName + "]");
 		}
+		// 所谓注册就是配置文件中的bean成员变量配置信息增强到beanDefinitionMap的bean定义中
 		MutablePropertyValues pvs = (MutablePropertyValues) bd.getPropertyValues();
 		pvs.addPropertyValue(pv);
 	}
