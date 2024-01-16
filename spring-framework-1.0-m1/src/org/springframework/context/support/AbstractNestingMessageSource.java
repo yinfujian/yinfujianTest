@@ -120,6 +120,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	/**
 	 * Try to resolve the message. Treat as an error if the message can't
 	 * be found.
+	 * 获取消息
 	 * @param code code to lookup up, such as 'calculator.noRateSet'
 	 * @param locale Locale in which to do lookup
 	 * @param args Array of arguments that will be filled in for params within
@@ -130,7 +131,7 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	 */
 	public final String getMessage(String code, Object args[], Locale locale) throws NoSuchMessageException {
 		try {
-			String mesg = resolve(code, locale);
+			String mesg = resolve(code, locale); // 1、消息模版
 
 			if (mesg == null) {
 				if (parent != null)
@@ -142,15 +143,19 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 			// Cache MessageFormat instances as they are accessed
 			if (locale == null)
 				locale = defaultLocale;
+
+			// 2、 创建format
 			MessageFormat format = null;
 			String formatKey = messageKey(locale, code);
 			synchronized (formats) {
 				format = (MessageFormat) formats.get(formatKey);
 				if (format == null) {
 					format = new MessageFormat(escape(mesg));
+					// 把messageKey存起来，防止重复创建
 					formats.put(formatKey, format);
 				}
 			}
+			// 3、执行格式化，替换模版参数
 			return (format.format(args));
 		} catch (NoSuchMessageException ex) {
 			throw ex;
@@ -197,6 +202,8 @@ public abstract class AbstractNestingMessageSource implements NestingMessageSour
 	/**
 	 * Compute and return a key to be used in caching information
 	 * by Locale and message key.
+	 * 生成key
+	 *
 	 *
 	 * @param locale The Locale for which this format key is calculated
 	 * @param key The message key for which this format key is calculated

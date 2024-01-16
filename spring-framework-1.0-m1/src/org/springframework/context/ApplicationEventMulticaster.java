@@ -8,6 +8,7 @@
 /**
  * Subinterface of ApplicationListener to be implemented by
  * listeners that can broadcast events to other listeners.
+ * ApplicationListener的子接口由可以向其他侦听器广播事件的监听器实现。
  * @author Rod Johnson
  */
 public interface ApplicationEventMulticaster extends ApplicationListener {

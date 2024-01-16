@@ -36,6 +36,7 @@ final class CachedIntrospectionResults {
 	/**
 	 * Map keyed by class containing CachedIntrospectionResults or ReflectionException
 	 */
+	// 放了个map
 	private static Map $cache = new HashMap();
 
 	/**

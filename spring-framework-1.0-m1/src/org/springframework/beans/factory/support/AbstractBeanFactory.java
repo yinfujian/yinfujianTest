@@ -60,6 +60,8 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * if the bean named <code>myEjb</code> is a factory, getting
 	 * <code>&myEjb</code> will return the factory, not the instance
 	 * returned by the factory.
+	 * 用于取消引用FactoryBean，并将其与工厂</i>创建的bean区分开来。
+	 * 例如，如果名为<code>myEjb</code>的bean是一个工厂，那么获取<code>&myEjb</code>将返回工厂，而不是工厂返回的实例。
 	 */
 	public static final String FACTORY_BEAN_PREFIX = "&";
 
@@ -112,12 +114,14 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	/**
 	 * Return the bean name, stripping out the factory deference prefix if necessary,
 	 * and resolving aliases to canonical names.
+	 * 返回bean名称，必要时去掉工厂尊重前缀，并将别名解析为规范名称。
 	 */
 	private String transformedBeanName(String name) {
 		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
 			name = name.substring(FACTORY_BEAN_PREFIX.length());
 		}
 		// Handle aliasing
+		// 优先别名
 		String canonicalName = (String) this.aliasMap.get(name);
 		return canonicalName != null ? canonicalName : name;
 	}
@@ -133,6 +137,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	/**
 	 * Return the bean with the given name,
 	 * checking the parent bean factory if not found.
+	 * 返回具有给定名称的bean，如果没有找到，则检查父bean工厂。
 	 * @param name name of the bean to retrieve
 	 */
 	public final Object getBean(String name) {
@@ -142,22 +147,27 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	/**
 	 * Return the bean with the given name,
 	 * checking the parent bean factory if not found.
-	 * @param name name of the bean to retrieve
-	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
+	 * 返回具有给定名称的bean，如果没有找到，则检查父bean工厂。
+	 * @param name name of the bean to retrieve 要检索的bean的名称
+	 * @param newlyCreatedBeans cache with newly created beans (name, instance) 使用新创建的bean（名称、实例）缓存
 	 * if triggered by the creation of another bean, or null else
 	 * (necessary to resolve circular references)
+	 * 如果由另一个bean的创建触发，或者为null else（解析循环引用所必需）
 	 */
 	private Object getBeanInternal(String name, Map newlyCreatedBeans) {
 		if (name == null)
 			throw new NoSuchBeanDefinitionException(null, "Cannot get bean with null name");
 		try {
+			// 通过beanName获取AbstractBeanDefinition
 			AbstractBeanDefinition bd = getBeanDefinition(transformedBeanName(name));
 			if (bd.isSingleton()) {
 				// Check for bean instance created in the current call,
 				// to be able to resolve circular references
+				// 检查在当前调用中创建的bean实例，以便能够解析循环引用
 				if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
 					return newlyCreatedBeans.get(name);
 				}
+				// 可能从缓存中已经创建的对象获取
 				return getSharedInstance(name, newlyCreatedBeans);
 			}
 			else {
@@ -215,21 +225,27 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * Get a singleton instance of this bean name. Note that this method shouldn't
 	 * be called too often: Callers should keep hold of instances. Hence, the whole
 	 * method is synchronized here.
-	 * TODO: There probably isn't any need for this to be synchronized,
-	 * at least not if we pre-instantiate singletons.
-	 * @param pname name that may include factory dereference prefix
-	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
+	 * 获取此bean名称的一个singleton实例。请注意，不应经常调用此方法：调用方应保留实例。因此，整个方法在这里是同步的。
+	 * TODO: There probably isn't any need for this to be synchronized, at least not if we pre-instantiate singletons.
+	 * TODO:这可能没有任何同步的必要，至少如果我们预先实例化singleton的话就没有了。
+	 * @param pname name that may include factory dereference prefix 可能包括工厂取消引用前缀的名称
+	 * @param newlyCreatedBeans cache with newly created beans (name, instance) 使用新创建的bean（名称、实例）缓存
 	 * if triggered by the creation of another bean, or null else
 	 * (necessary to resolve circular references)
+	 *  如果由另一个bean的创建触发，或者为null else（解析循环引用所必需）
 	 */
 	private final synchronized Object getSharedInstance(String pname, Map newlyCreatedBeans) throws BeansException {
 		// Get rid of the dereference prefix if there is one
+		// 获取标准beanName
 		String name = transformedBeanName(pname);
 
+		// bean 缓存 singletonCache 中获取单例bean
 		Object beanInstance = this.singletonCache.get(name);
 		if (beanInstance == null) {
 			logger.info("Creating shared instance of singleton bean '" + name + "'");
+			// 没有的话建一个bean
 			beanInstance = createBean(name, newlyCreatedBeans);
+			// 放进缓存里
 			this.singletonCache.put(name, beanInstance);
 		}
 		else {
@@ -239,6 +255,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 
 		// Don't let calling code try to dereference the
 		// bean factory if the bean isn't a factory
+		// 如果bean不是工厂，不要让调用代码试图取消引用bean工厂
 		if (isFactoryDereference(pname) && !(beanInstance instanceof FactoryBean)) {
 			throw new BeanIsNotAFactoryException(name, beanInstance);
 		}
@@ -247,6 +264,8 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		// or a FactoryBean. If it's a FactoryBean, we use it to
 		// create a bean instance, unless the caller actually wants
 		// a reference to the factory.
+		// 现在我们有了beanInstance，它可能是一个普通的bean或FactoryBean。
+		// 如果它是FactoryBean，我们将使用它来创建一个bean实例，除非调用者实际上想要对工厂的引用。
 		if (beanInstance instanceof FactoryBean) {
 			if (!isFactoryDereference(pname)) {
 				// Configure and return new bean instance from factory
@@ -278,6 +297,11 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * Return a BeanWrapper object for a new instance of this bean.
 	 * First look up BeanDefinition for the given bean name.
 	 * Uses recursion to support instance "inheritance".
+	 * 这个类中的所有其他方法都调用这个方法，尽管bean在被这个方法实例化后可能会被缓存。
+	 * 这个类中的所有bean实例化都是由这个方法执行的。
+	 * 为这个bean的一个新实例返回一个BeanWrapper对象。
+	 * 首先查找给定bean名称的BeanDefinition。
+	 * 使用递归来支持实例“继承”。
 	 * @param name name of the bean. Must be unique in the BeanFactory
 	 * @param newlyCreatedBeans cache with newly created beans (name, instance)
 	 * if triggered by the creation of another bean, or null else
@@ -285,10 +309,10 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * @return a new instance of this bean
 	 */
 	private Object createBean(String name, Map newlyCreatedBeans) throws BeansException {
-		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name);
+		RootBeanDefinition mergedBeanDefinition = getMergedBeanDefinition(name); // 获取BeanDefinition
 		logger.debug("Creating instance of bean '" + name + "' with merged definition [" + mergedBeanDefinition + "]");
-		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass());
-		Object bean = instanceWrapper.getWrappedInstance();
+		BeanWrapper instanceWrapper = new BeanWrapperImpl(mergedBeanDefinition.getBeanClass()); // 创建对象并设置给BeanWrapperImpl的object
+		Object bean = instanceWrapper.getWrappedInstance(); // 获取该对象
 
 		// Cache new instance to be able resolve circular references, but ignore
 		// FactoryBean instances as they can't create objects if not initialized
@@ -299,9 +323,9 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			newlyCreatedBeans.put(name, bean);
 		}
 
-		PropertyValues pvs = mergedBeanDefinition.getPropertyValues();
-		applyPropertyValues(instanceWrapper, pvs, name, newlyCreatedBeans);
-		callLifecycleMethodsIfNecessary(bean, name, mergedBeanDefinition, instanceWrapper);
+		PropertyValues pvs = mergedBeanDefinition.getPropertyValues(); // 配置的属性值
+		applyPropertyValues(instanceWrapper, pvs, name, newlyCreatedBeans); // 通过反射method设置配置值
+		callLifecycleMethodsIfNecessary(bean, name, mergedBeanDefinition, instanceWrapper); // 生命周期方法，InitializingBean getInitMethodName BeanFactoryAware
 		return bean;
 	}
 
@@ -359,6 +383,8 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		// requires a runtime reference to another bean to be resolved.
 		// If it does, we'll attempt to instantiate the bean and set the reference.
 		if (pv.getValue() != null && (pv.getValue() instanceof RuntimeBeanReference)) {
+			// 注入属性的时候，如果，注入的是bean类型，会去取引用的bean，如果引用的bean还没有对象，那么要createBean
+			// 这里可能出现循环依赖
 			RuntimeBeanReference ref = (RuntimeBeanReference) pv.getValue();
 			val = resolveReference(pv.getName(), ref, newlyCreatedBeans);
 		}	
@@ -383,7 +409,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		 // If it's an array type, we may have to massage type
 		 // of collection. We'll start with ManagedList.
 		 // We may also have to convert array elements from Strings
-		 // TODO consider refactoring into BeanWrapperImpl?
+		 // TODO consider refactoring into BeanWrapperImpl? 考虑重构到BeanWrapperImpl？
 		 if (val != null && val instanceof ManagedList && bw.getPropertyDescriptor(pv.getName()).getPropertyType().isArray()) {
 			 // It's an array
 			 Class arrayClass = bw.getPropertyDescriptor(pv.getName()).getPropertyType();
@@ -467,6 +493,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	 * Give a bean a chance to react now all its properties are set,
 	 * and a chance to know about its owning bean factory (this object).
 	 * This means checking whether the bean implements InitializingBean
+	 * 生命周期的方法回调
 	 * and/or BeanFactoryAware, and invoking the necessary callback(s) if it does.
 	 * @param bean new bean instance we may need to initialize
 	 * @param name the bean has in the factory. Used for debug output.
@@ -474,6 +501,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 	private void callLifecycleMethodsIfNecessary(Object bean, String name, RootBeanDefinition rbd, BeanWrapper bw)
 	    throws BeansException {
 
+		// 是否实现了InitializingBean 接口，是的话，在创建完bean的时候会回调
 		if (bean instanceof InitializingBean) {
 			logger.debug("Calling afterPropertiesSet() on bean with name '" + name + "'");
 			try {
@@ -483,13 +511,15 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 				throw new FatalBeanException("afterPropertiesSet() on bean with name '" + name + "' threw an exception", ex);
 			}
 		}
-		
+
+		// 初始化方法
 		if (rbd.getInitMethodName() != null) {
 			logger.debug("Calling custom init method '" + rbd.getInitMethodName() + "' on bean with name '" + name + "'");
 			bw.invoke(rbd.getInitMethodName(), null);
 			// Can throw MethodInvocationException
 		}
 
+		// 工厂增强方法
 		if (bean instanceof BeanFactoryAware) {
 			logger.debug("Calling setBeanFactory() on BeanFactoryAware bean with name '" + name + "'");
 			try {
@@ -506,6 +536,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 
 	/**
 	 * Make a RootBeanDefinition, even by traversing parent if the parameter is a child definition.
+	 * 如果参数是子定义，即使通过遍历父定义也可以进行RootBeanDefinition。
 	 * @return a merged RootBeanDefinition with overriden properties
 	 */
 	protected final RootBeanDefinition getMergedBeanDefinition(String name) throws NoSuchBeanDefinitionException {

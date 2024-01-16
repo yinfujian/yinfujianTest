@@ -48,6 +48,7 @@ import org.springframework.util.StringUtils;
  *
  * <p>This class uses the Template Method design pattern, requiring
  * concrete subclasses to implement protected abstract methods.
+ * 这个类用到了模版方法设计模式，需要子类实现抽象方法
  *
  * <p>The context options may be supplied as a bean in the default bean factory,
  * with the name "contextOptions".
@@ -108,12 +109,16 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * Helper class used in event publishing.
 	 * TODO: This could be parameterized as a JavaBean (with a distinguished name
 	 * specified), enabling a different thread usage policy for event publication.
+	 * 事件发布中使用的帮助程序类。
+	 *
+	 * TODO:这可以参数化为JavaBean（指定了可分辨名称），从而为事件发布启用不同的线程使用策略。
 	 */
 	private ApplicationEventMulticaster eventMulticaster = new ApplicationEventMulticasterImpl();
 
 	/**
 	 * Set of ApplicationContextAware objects that have already received the context
 	 * reference, to be able to avoid double initialization of managed objects.
+	 * 已接收上下文引用的ApplicationContextAware对象集，以避免托管对象的双重初始化。
 	 */
 	private Set managedSingletons = new HashSet();
 
@@ -203,6 +208,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * @throws BeansException if the bean factory could not be initialized
 	 */
 	public final void refresh() throws ApplicationContextException, BeansException {
+		// 是够可以重新加载， 是在loadOptions中给初始化的，也就是可以重复进入的该初始化方法的。
 		if (this.contextOptions != null && !this.contextOptions.isReloadable())
 			throw new ApplicationContextException("Forbidden to reload config");
 
@@ -220,17 +226,21 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 		invokeContextConfigurers();
 
 		// load options bean for this context 加载bean是否可重新加载
+		// 初始化 contextOptions 参数
 		loadOptions();
 
 		// initialize message source for this context
-		// 为容器初始化事件源
+		// 为容器初始化事件源, 好像是为日志做的准备 更多是在web mvc中用的
+		// messagekey Local + "." + code
 		initMessageSource();
 
 		// initialize other special beans in specific context subclasses
-		// 初始化其他特殊的beans,在特殊的上下文子类中
+		// 初始化其他特殊的beans,在特殊的上下文子类中，
+		// 高版本整合tomcat。
 		onRefresh();
 
-		// 校验监听器对象并注册他们
+		// 校验监听器对象并注册他们，
+		// 放到了一个容器里面。遍历容器，挨个执行
 		refreshListeners();
 
 		// 这么晚才实例化singleton，以允许它们访问消息源
@@ -242,10 +252,12 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Callback method which can be overridden to add context-specific refresh work.
+	 * 是一个回调的方法， 高版本使用这个整合的tomcat
 	 * @throws ApplicationContextException in case of errors during refresh
 	 */
 	protected void onRefresh() throws ApplicationContextException {
 		// For subclasses: do nothing by default.
+		// 是给子类实现的
 	}
 
 	/**
@@ -279,7 +291,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Initialize the message source.
+	 * 初始化消息源
 	 * Use parent's if none defined in this context.
+	 * 如果在当前上下文没有定义，就使用父类的
 	 */
 	private void initMessageSource() {
 		try {
@@ -303,14 +317,20 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * Invoke the setApplicationContext() callback on all objects
 	 * in the context. This involves instantiating the objects.
 	 * Only singletons will be instantiated eagerly.
+	 * 对上下文中的所有对象调用setApplicationContext（）回调。
+	 * 这涉及到实例化对象。
+	 * 只有singleton才会被急切地实例化。
 	 */
 	private void preInstantiateSingletons() {
-		logger.info("Configuring singleton beans in context");
+//		logger.info("Configuring singleton beans in context");
+		// 从beanDefinitionMap中获取所有beanName的集合
 		String[] beanNames = getBeanDefinitionNames();
-		logger.debug("Found " + beanNames.length + " listeners in bean factory: names=[" +
-		             StringUtils.arrayToDelimitedString(beanNames, ",") + "]");
+//		logger.debug("Found " + beanNames.length + " listeners in bean factory: names=[" +
+//		             StringUtils.arrayToDelimitedString(beanNames, ",") + "]");
+		// 遍历beansNames
 		for (int i = 0; i < beanNames.length; i++) {
 			String beanName = beanNames[i];
+			// 他的bean定义信息是不是单例的
 			if (isSingleton(beanName)) {
 				getBean(beanName);
 			}
@@ -324,6 +344,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 * if it implements the ApplicationContextAware interface
 	 */
 	private void configureManagedObject(String name, Object bean) {
+		// ApplicationContextAware 方法的处理
 		if (bean instanceof ApplicationContextAware &&
 				(!isSingleton(name) || !this.managedSingletons.contains(bean))) {
 			logger.debug("Setting application context on ApplicationContextAware object [" + bean + "]");
@@ -341,6 +362,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 	 */
 	private void refreshListeners() {
 		logger.info("Refreshing listeners");
+		//所有监听器类型的集合
 		List listeners = BeanFactoryUtils.beansOfType(ApplicationListener.class, this);
 		logger.debug("Found " + listeners.size() + " listeners in bean factory");
 		for (int i = 0; i < listeners.size(); i++) {
@@ -367,6 +389,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Publish the given event to all listeners.
+	 * 给所有的监听器发布消息
 	 * <p>Note: Listeners get initialized after the message source, to be able
 	 * to access it within listener implementations. Thus, message source
 	 * implementation cannot publish events.
@@ -385,6 +408,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 	/**
 	 * Add a listener. Any beans that are listeners are automatically added.
+	 * 添加一个侦听器。将自动添加作为侦听器的任何bean。
 	 */
 	protected void addListener(ApplicationListener l) {
 		this.eventMulticaster.addApplicationListener(l);
@@ -483,10 +507,11 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 
 	//---------------------------------------------------------------------
-	// Implementation of BeanFactory
+	// Implementation of BeanFactory bean工厂的实现
 	//---------------------------------------------------------------------
 
 	public Object getBean(String name) throws BeansException {
+		// 创建了bean
 		Object bean = getBeanFactory().getBean(name);
 		configureManagedObject(name, bean);
 		return bean;

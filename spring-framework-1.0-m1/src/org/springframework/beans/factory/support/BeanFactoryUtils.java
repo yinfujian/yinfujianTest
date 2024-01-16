@@ -41,6 +41,7 @@ public abstract class BeanFactoryUtils {
 		 String[] beanNames = lbf.getBeanDefinitionNames(type);
 		 List l = new ArrayList(beanNames.length);
 		 for (int i = 0; i < beanNames.length; i++) {
+		 	// 创建bean对象
 		 	l.add(lbf.getBean(beanNames[i]));
 		 }
 		 return l;

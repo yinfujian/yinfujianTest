@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
  * Simple implementation of NestingMessageSource that allows messages
  * to be held in a Java object, and added programmatically.
  * This class now supports internationalization.
+ * NestingMessageSource的简单实现，它允许消息保存在Java对象中，并以编程方式添加。这个类现在支持国际化。
  *
  * <p>Intended for testing, rather than use production systems.
  *
@@ -20,6 +21,7 @@ public class StaticMessageSource extends AbstractNestingMessageSource {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	// message 容器
 	private Map messages = new HashMap();
 
 	/**

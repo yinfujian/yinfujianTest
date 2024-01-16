@@ -112,6 +112,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 	/**
 	 * Cached introspections results for this object, to prevent encountering the cost
 	 * of JavaBeans introspection every time.
+	 * 该对象的缓存反射结果，以防止每次都遇到JavaBeans反射的代价。
 	 */
 	private CachedIntrospectionResults cachedIntrospectionResults;
 
@@ -177,6 +178,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 		this.object = object;
 		if (this.cachedIntrospectionResults == null ||
 		    !this.cachedIntrospectionResults.getBeanClass().equals(object.getClass())) {
+			// 缓存了类的方法信息
 			this.cachedIntrospectionResults = CachedIntrospectionResults.forClass(object.getClass());
 		}
 		setEventPropagationEnabled(this.eventPropagationEnabled);
@@ -492,7 +494,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 				}
 			}
 
-			// Old value may still be null
+			// Old value may still be null 类型转换
 			propertyChangeEvent = createPropertyChangeEventWithTypeConversionIfNecessary(
 					object, pv.getName(), oldValue, pv.getValue(), pd.getPropertyType());
 
@@ -511,6 +513,7 @@ public class BeanWrapperImpl implements BeanWrapper {
 			if (logger.isDebugEnabled())
 				logger.debug("About to invoke write method ["
 										 + writeMethod + "] on object of class '" + object.getClass().getName() + "'");
+			// 调用set方法设置属性值
 			writeMethod.invoke(object, new Object[]{propertyChangeEvent.getNewValue()});
 			if (logger.isDebugEnabled())
 				logger.debug("Invoked write method [" + writeMethod + "] ok");
