@@ -163,7 +163,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 			if (bd.isSingleton()) {
 				// Check for bean instance created in the current call,
 				// to be able to resolve circular references
-				// 检查在当前调用中创建的bean实例，以便能够解析循环引用
+				// 检查在当前调用中创建的bean实例，以便能够解析循环引用 这个存的是半成品对象，解决循环依赖
 				if (newlyCreatedBeans != null && newlyCreatedBeans.containsKey(name)) {
 					return newlyCreatedBeans.get(name);
 				}
@@ -316,6 +316,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 
 		// Cache new instance to be able resolve circular references, but ignore
 		// FactoryBean instances as they can't create objects if not initialized
+		// 缓存新实例以能够解析循环引用，但忽略FactoryBean实例，因为它们在未初始化的情况下无法创建对象
 		if (!(bean instanceof FactoryBean)) {
 			if (newlyCreatedBeans == null) {
 				newlyCreatedBeans = new HashMap();
