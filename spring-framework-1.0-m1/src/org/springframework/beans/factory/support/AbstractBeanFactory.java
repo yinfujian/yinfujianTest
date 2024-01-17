@@ -256,6 +256,7 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		// Don't let calling code try to dereference the
 		// bean factory if the bean isn't a factory
 		// 如果bean不是工厂，不要让调用代码试图取消引用bean工厂
+		// 也就是说以&开头对象名，必须是FactoryBean， 不是的会抛出异常
 		if (isFactoryDereference(pname) && !(beanInstance instanceof FactoryBean)) {
 			throw new BeanIsNotAFactoryException(name, beanInstance);
 		}
@@ -269,11 +270,12 @@ public abstract class AbstractBeanFactory implements HierarchicalBeanFactory {
 		if (beanInstance instanceof FactoryBean) {
 			if (!isFactoryDereference(pname)) {
 				// Configure and return new bean instance from factory
+				// 从工厂里拿一个新的bean出来
 				FactoryBean factory = (FactoryBean) beanInstance;
 				logger.debug("Bean with name '" + name + "' is a factory bean");
 				beanInstance = factory.getObject();
 
-				// Set pass-through properties
+				// Set pass-through properties 传递的参数
 				if (factory.getPropertyValues() != null) {
 					logger.debug("Applying pass-through properties to bean with name '" + name + "'");
 					new BeanWrapperImpl(beanInstance).setPropertyValues(factory.getPropertyValues());

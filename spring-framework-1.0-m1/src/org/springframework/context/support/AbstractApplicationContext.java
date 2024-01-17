@@ -241,6 +241,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
 		// 校验监听器对象并注册他们，
 		// 放到了一个容器里面。遍历容器，挨个执行
+		// 观察者模式
 		refreshListeners();
 
 		// 这么晚才实例化singleton，以允许它们访问消息源
